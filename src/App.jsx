@@ -727,8 +727,17 @@ function ContactSection() {
             <MapPin className="w-5 h-5" />
             <span>Location</span>
           </div>
-          <div className="h-48 bg-gray-300/50 dark:bg-gray-700/50 rounded-xl flex items-center justify-center">
-            <span className="text-gray-500">🗺️ Interactive Map Coming Soon</span>
+          <div className="h-48 w-full rounded-xl overflow-hidden">
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14600.755647941447!2d90.40346808715817!3d23.811880500000015!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c72417d4fd31%3A0x338ff98cff5b4568!2sJuicy%20N%20Smoothie!5e0!3m2!1sen!2sbd!4v1778789175762!5m2!1sen!2sbd" 
+              width="100%" 
+              height="100%" 
+              style="border:0;" 
+              allowfullscreen="" 
+              loading="lazy" 
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+            </iframe>
           </div>
         </motion.div>
       </div>
