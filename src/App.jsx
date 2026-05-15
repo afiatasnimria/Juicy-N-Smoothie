@@ -303,35 +303,39 @@ function Scene({ mousePosition }) {
 
 // Particle Background
 function ParticleBackground() {
-  const particles = useRef([]);
+  const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
 
   useEffect(() => {
-    const count = 50;
-    for (let i = 0; i < count; i++) {
-      particles.current.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        size: Math.random() * 4 + 1,
-        speedX: (Math.random() - 0.5) * 0.5,
-        speedY: (Math.random() - 0.5) * 0.5,
-        opacity: Math.random() * 0.5 + 0.1,
+    setDimensions({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+    const handleResize = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
       });
-    }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const emojis = ["🍋", "🍊", "🍓", "🥑", "☕", "🍔", "🍕"];
+  const emojiSize = dimensions.width < 375 ? "text-lg" : "text-xl";
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {["🍋", "🍊", "🍓", "🥑", "☕", "🍔", "🍕"].map((emoji, i) => (
+      {emojis.map((emoji, i) => (
         <motion.div
           key={i}
-          className="absolute text-2xl opacity-20"
+          className={`absolute ${emojiSize} opacity-10 sm:opacity-20`}
           initial={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
+            x: Math.random() * dimensions.width,
+            y: Math.random() * dimensions.height,
           }}
           animate={{
-            y: [null, Math.random() * -100],
-            x: [null, Math.random() * 50 - 25],
+            y: [null, Math.random() * -80],
+            x: [null, Math.random() * 40 - 20],
           }}
           transition={{
             duration: Math.random() * 10 + 10,
@@ -429,13 +433,12 @@ function Navbar({ darkMode, setDarkMode, activeCategory, setActiveCategory }) {
           {/* Desktop Search - Removed */}
 
           {/* Right Side */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <motion.button
               type="button"
-              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setDarkMode(!darkMode)}
-              className="hidden lg:flex w-10 h-10 rounded-full bg-white/50 dark:bg-dark/50 flex items-center justify-center text-xl cursor-pointer"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/50 dark:bg-dark/50 flex items-center justify-center text-lg sm:text-xl cursor-pointer shadow-sm"
             >
               {darkMode ? "🌙" : "☀️"}
             </motion.button>
@@ -443,10 +446,10 @@ function Navbar({ darkMode, setDarkMode, activeCategory, setActiveCategory }) {
             {/* Mobile Menu Button */}
             <button
               type="button"
-              className="lg:hidden w-10 h-10 rounded-full bg-white/50 flex items-center justify-center cursor-pointer"
+              className="lg:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/50 dark:bg-dark/50 flex items-center justify-center cursor-pointer shadow-sm"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
@@ -460,22 +463,8 @@ function Navbar({ darkMode, setDarkMode, activeCategory, setActiveCategory }) {
               exit={{ opacity: 0, height: 0 }}
               className="lg:hidden pb-4"
             >
-              <div className="flex flex-col gap-4">
-                {/* Dark Mode Toggle */}
-                <div className="flex items-center justify-between px-4 py-2 bg-white/80 dark:bg-dark/50 rounded-lg">
-                  <span className="text-sm font-medium">Dark Mode</span>
-                  <motion.button
-                    type="button"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setDarkMode(!darkMode)}
-                    className="w-10 h-10 rounded-full bg-white/50 dark:bg-dark/50 flex items-center justify-center text-xl cursor-pointer"
-                  >
-                    {darkMode ? "🌙" : "☀️"}
-                  </motion.button>
-                </div>
-
-                {/* Categories */}
+              <div className="flex flex-col gap-3 px-2">
+                {/* Categories in mobile menu */}
                 <div className="grid grid-cols-2 gap-2">
                   {categories.map((category) => (
                     <motion.button
@@ -485,12 +474,11 @@ function Navbar({ darkMode, setDarkMode, activeCategory, setActiveCategory }) {
                         setActiveCategory(category.id);
                         setMobileMenuOpen(false);
                       }}
-                      whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className={`category-btn ${activeCategory === category.id ? "active" : ""}`}
+                      className={`category-btn justify-center ${activeCategory === category.id ? "active" : ""}`}
                     >
                       <span className="text-lg">{category.icon}</span>
-                      <span className="text-xs">{category.name}</span>
+                      <span className="text-sm font-semibold">{category.name}</span>
                     </motion.button>
                   ))}
                 </div>
@@ -510,11 +498,11 @@ function HeroSection() {
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   return (
-    <section className="min-h-screen relative flex items-center justify-center overflow-hidden pt-20">
+    <section id="hero" className="min-h-screen relative flex items-center justify-center overflow-hidden pt-16 sm:pt-20">
       {/* Animated Background */}
       <div className="absolute inset-0 hero-gradient" />
 
-      {/* Gradient Orbs */}
+      {/* Gradient Orbs - Responsive sizes */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
           animate={{
@@ -522,7 +510,7 @@ function HeroSection() {
             rotate: [0, 180, 360],
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-1/2 -right-1/4 w-[800px] h-[800px] rounded-full bg-gradient-to-br from-primary/30 to-accent/20 blur-3xl"
+          className="absolute -top-1/2 -right-1/4 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] md:w-[800px] md:h-[800px] rounded-full bg-gradient-to-br from-primary/30 to-accent/20 blur-3xl"
         />
         <motion.div
           animate={{
@@ -530,7 +518,7 @@ function HeroSection() {
             rotate: [0, -180, -360],
           }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-1/2 -left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-secondary/20 to-primary/20 blur-3xl"
+          className="absolute -bottom-1/2 -left-1/4 w-[300px] h-[300px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] rounded-full bg-gradient-to-tr from-secondary/20 to-primary/20 blur-3xl"
         />
       </div>
 
@@ -543,9 +531,9 @@ function HeroSection() {
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ type: "spring", duration: 1.5 }}
-          className="mb-6"
+          className="mb-4 sm:mb-6"
         >
-          <span className="text-8xl md:text-9xl filter drop-shadow-2xl">
+          <span className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl filter drop-shadow-2xl">
             🍹
           </span>
         </motion.div>
@@ -554,7 +542,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold mb-4"
+          className="font-heading text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-3 sm:mb-4 leading-tight"
         >
           <span className="text-primary">Juicy</span>{" "}
           <span className="text-secondary dark:text-white">n</span>{" "}
@@ -565,7 +553,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.8 }}
-          className="text-xl md:text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 mb-4 font-medium"
+          className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 font-medium px-2"
         >
           Fresh Taste. <span className="text-primary">Futuristic</span>{" "}
           Experience.
@@ -575,7 +563,7 @@ function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="text-base text-gray-500 dark:text-gray-400 mb-8"
+          className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-6 sm:mb-8"
         >
           Scan. Explore. Enjoy. 🍽️
         </motion.p>
@@ -593,23 +581,23 @@ function HeroSection() {
           transition={{ delay: 0.9, type: "spring" }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-primary to-primary-dark text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:shadow-primary/30 transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-primary to-primary-dark text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:shadow-primary/30 transition-all cursor-pointer text-sm sm:text-base"
         >
           <span>View Menu</span>
           <motion.span
             animate={{ y: [0, 5, 0] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           >
-            <ChevronDown className="w-5 h-5" />
+            <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
           </motion.span>
         </motion.button>
       </motion.div>
 
-      {/* Scroll Indicator */}
+      {/* Scroll Indicator - hide on very small screens */}
       <motion.div
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:block"
       >
         <div className="w-6 h-10 rounded-full border-2 border-gray-400 flex justify-center pt-2">
           <motion.div
@@ -623,35 +611,39 @@ function HeroSection() {
   );
 }
 
-// Category Tabs
+// Category Tabs - Horizontal scroll on all devices
 function CategoryTabs({ activeCategory, setActiveCategory }) {
+  const scrollRef = useRef(null);
+
   return (
-    <section className="py-8 px-4 sticky top-16 md:top-20 z-30 bg-bg-light/95 dark:bg-bg-dark/95 backdrop-blur-md">
+    <section className="py-4 sm:py-6 px-4 sticky top-16 md:top-20 z-30 bg-bg-light/95 dark:bg-bg-dark/95 backdrop-blur-md border-b border-gray-200/20 dark:border-gray-700/20">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-6"
+          className="text-center mb-3 sm:mb-4"
         >
-          <h2 className="font-heading text-2xl md:text-3xl font-bold">
+          <h2 className="font-heading text-xl sm:text-2xl md:text-3xl font-bold">
             <span className="text-secondary dark:text-white">Our</span>{" "}
             <span className="text-primary">Categories</span>
           </h2>
         </motion.div>
 
-        <div className="flex flex-wrap justify-center gap-3">
+        <div
+          ref={scrollRef}
+          className="category-scroll hide-scrollbar px-1 pb-1"
+        >
           {categories.map((category) => (
             <motion.button
               type="button"
               key={category.id}
               onClick={() => setActiveCategory(category.id)}
-              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className={`category-btn ${activeCategory === category.id ? "active" : ""}`}
             >
-              <span className="text-xl">{category.icon}</span>
-              <span>{category.name}</span>
+              <span className="text-lg sm:text-xl">{category.icon}</span>
+              <span className="text-sm sm:text-base">{category.name}</span>
             </motion.button>
           ))}
         </div>
@@ -672,13 +664,11 @@ function MenuCard({ item, index }) {
       className="menu-card group"
     >
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden">
-        <motion.img
-          whileHover={{ scale: 1.1 }}
-          transition={{ duration: 0.5 }}
+      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
+        <img
           src={item.image}
           alt={item.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           loading="lazy"
         />
         {/* Overlay */}
@@ -690,15 +680,15 @@ function MenuCard({ item, index }) {
       </div>
 
       {/* Content */}
-      <div className="p-4 md:p-5">
-        <h3 className="font-heading text-lg font-bold mb-2 text-gray-800 dark:text-white">
+      <div className="p-3 sm:p-4 md:p-5">
+        <h3 className="font-heading text-sm sm:text-base md:text-lg font-bold mb-1 sm:mb-2 text-gray-800 dark:text-white line-clamp-1">
           {item.name}
         </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2">
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-2 sm:mb-4 line-clamp-2">
           {item.description}
         </p>
         <div className="flex items-center justify-between">
-          <span className="text-lg font-semibold text-primary dark:text-accent">
+          <span className="text-sm sm:text-base md:text-lg font-semibold text-primary dark:text-accent">
             ৳{item.price}
           </span>
         </div>
@@ -716,14 +706,14 @@ function MenuSection({ activeCategory }) {
   });
 
   return (
-    <section id="menu" className="py-12 px-4">
+    <section id="menu" className="py-6 sm:py-12 px-3 sm:px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="font-heading text-2xl md:text-3xl font-bold">
+        <div className="flex items-center justify-between mb-4 sm:mb-8">
+          <h2 className="font-heading text-xl sm:text-2xl md:text-3xl font-bold">
             <span className="text-secondary dark:text-white">Our</span>{" "}
             <span className="text-primary">Menu</span>
           </h2>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
+          <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
             {filteredItems.length} items
           </span>
         </div>
@@ -738,7 +728,7 @@ function MenuSection({ activeCategory }) {
             <p className="text-gray-500 text-lg">No items found</p>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             {filteredItems.map((item, index) => (
               <MenuCard key={item.id} item={item} index={index} />
             ))}
@@ -752,7 +742,7 @@ function MenuSection({ activeCategory }) {
 // Special Offer Section
 function SpecialOffer() {
   return (
-    <section id="offer" className="py-20 px-4 relative overflow-hidden">
+    <section id="offer" className="py-12 sm:py-20 px-4 relative overflow-hidden">
       <div className="absolute inset-0 animated-gradient" />
       <div className="absolute inset-0 bg-black/30" />
 
@@ -766,11 +756,11 @@ function SpecialOffer() {
           <motion.span
             animate={{ scale: [1, 1.1, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="inline-block px-6 py-2 bg-white text-primary font-bold rounded-full text-sm mb-4"
+            className="inline-block px-4 sm:px-6 py-1.5 sm:py-2 bg-white text-primary font-bold rounded-full text-xs sm:text-sm mb-3 sm:mb-4"
           >
             🔥 Today's Special
           </motion.span>
-          <h2 className="font-heading text-3xl md:text-5xl font-bold text-white">
+          <h2 className="font-heading text-2xl sm:text-3xl md:text-5xl font-bold text-white">
             Special Offer
           </h2>
         </motion.div>
@@ -780,18 +770,17 @@ function SpecialOffer() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           whileHover={{ scale: 1.02 }}
-          className="glass rounded-3xl p-8 md:p-12 text-center"
+          className="glass rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 text-center"
         >
-          <div className="text-6xl md:text-7xl mb-6">🍕+🍋</div>
-          <h3 className="font-heading text-2xl md:text-3xl font-bold text-white mb-4">
+          <div className="text-4xl sm:text-5xl md:text-7xl mb-4 sm:mb-6">🍕+🍋</div>
+          <h3 className="font-heading text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 sm:mb-4">
             Buy 1 Pizza Get 1 Lemonade Free!
           </h3>
-          <p className="text-white/80 text-lg mb-6">
+          <p className="text-white/80 text-sm sm:text-base md:text-lg mb-4 sm:mb-6">
             Valid for all pizza varieties. Refreshing lemonade included!
           </p>
           <motion.button
             type="button"
-            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => {
               const menuSection = document.getElementById("menu");
@@ -799,7 +788,7 @@ function SpecialOffer() {
                 menuSection.scrollIntoView({ behavior: "smooth" });
               }
             }}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary font-bold rounded-full shadow-lg hover:shadow-xl transition-all"
+            className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-white text-primary font-bold rounded-full shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
           >
             <span>🔥</span>
             <span>Limited Time Offer</span>
@@ -813,9 +802,9 @@ function SpecialOffer() {
 // About Section
 function AboutSection() {
   return (
-    <section id="about" className="py-20 px-4">
+    <section id="about" className="py-12 sm:py-20 px-4">
       <div className="max-w-6xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -825,17 +814,17 @@ function AboutSection() {
               <img
                 src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80"
                 alt="Restaurant Interior"
-                className="w-full rounded-3xl shadow-2xl object-cover h-80 md:h-96"
+                className="w-full rounded-2xl sm:rounded-3xl shadow-2xl object-cover h-64 sm:h-80 md:h-96"
               />
               <motion.div
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.3, type: "spring" }}
-                className="absolute -bottom-6 -right-6 bg-gradient-to-r from-primary to-accent text-white p-6 rounded-2xl shadow-lg"
+                className="absolute -bottom-4 sm:-bottom-6 -right-4 sm:-right-6 bg-gradient-to-r from-primary to-accent text-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg"
               >
-                <p className="font-bold text-3xl">5+</p>
-                <p className="text-sm">Years Active</p>
+                <p className="font-bold text-2xl sm:text-3xl">5+</p>
+                <p className="text-xs sm:text-sm">Years Active</p>
               </motion.div>
             </div>
           </motion.div>
@@ -845,22 +834,22 @@ function AboutSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-heading text-3xl md:text-4xl font-bold mb-6">
+            <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6">
               <span className="text-secondary dark:text-white">About</span>{" "}
               <span className="text-primary">Us</span>
             </h2>
-            <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed mb-6">
+            <p className="text-gray-600 dark:text-gray-300 text-base sm:text-lg leading-relaxed mb-4 sm:mb-6">
               Juicy n Smoothie brings fresh flavors, handcrafted drinks, premium
               burgers, pizzas, sandwiches, and coffee together in one modern
               dining experience.
             </p>
-            <p className="text-gray-500 dark:text-gray-400 mb-8">
+            <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base mb-6 sm:mb-8">
               Our commitment to quality ingredients and exceptional taste has
               made us a favorite destination for food lovers seeking a
               delightful culinary journey.
             </p>
 
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-3 sm:gap-6">
               {[
                 { number: "18+", label: "Menu Items" },
                 { number: "6", label: "Categories" },
@@ -874,10 +863,10 @@ function AboutSection() {
                   transition={{ delay: i * 0.1 }}
                   className="text-center"
                 >
-                  <span className="text-2xl md:text-3xl font-bold text-primary">
+                  <span className="text-lg sm:text-2xl md:text-3xl font-bold text-primary">
                     {stat.number}
                   </span>
-                  <p className="text-sm text-gray-500">{stat.label}</p>
+                  <p className="text-xs sm:text-sm text-gray-500">{stat.label}</p>
                 </motion.div>
               ))}
             </div>
@@ -917,20 +906,20 @@ function ContactSection() {
   return (
     <section
       id="contact"
-      className="py-20 px-4 bg-gray-100/50 dark:bg-gray-900/50"
+      className="py-12 sm:py-20 px-4 bg-gray-100/50 dark:bg-gray-900/50"
     >
       <div className="max-w-5xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="font-heading text-3xl md:text-4xl font-bold text-center mb-12"
+          className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12"
         >
           <span className="text-secondary dark:text-white">Contact</span>{" "}
           <span className="text-primary">Us</span>
         </motion.h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {contactItems.map((item, i) => (
             <motion.a
               key={i}
@@ -942,11 +931,12 @@ function ContactSection() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
               whileHover={{ scale: 1.05 }}
-              className="glass rounded-2xl p-6 text-center hover:bg-primary/10 transition-colors"
+              whileTap={{ scale: 0.95 }}
+              className="glass rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center hover:bg-primary/10 transition-colors"
             >
-              <item.icon className="w-8 h-8 mx-auto mb-3 text-primary" />
-              <p className="font-semibold text-sm">{item.label}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <item.icon className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 sm:mb-3 text-primary" />
+              <p className="font-semibold text-xs sm:text-sm">{item.label}</p>
+              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {item.value}
               </p>
             </motion.a>
@@ -957,13 +947,13 @@ function ContactSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-8 p-6 bg-gray-200/50 dark:bg-gray-800/50 rounded-2xl"
+          className="mt-6 sm:mt-8 p-4 sm:p-6 bg-gray-200/50 dark:bg-gray-800/50 rounded-xl sm:rounded-2xl"
         >
-          <div className="flex items-center justify-center gap-2 text-gray-500 mb-4">
-            <MapPin className="w-5 h-5" />
+          <div className="flex items-center justify-center gap-2 text-gray-500 mb-3 sm:mb-4 text-sm">
+            <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Location</span>
           </div>
-          <div className="h-48 w-full rounded-xl overflow-hidden">
+          <div className="h-40 sm:h-48 w-full rounded-lg sm:rounded-xl overflow-hidden">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14600.755647941447!2d90.40346808715817!3d23.811880500000015!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c72417d4fd31%3A0x338ff98cff5b4568!2sJuicy%20N%20Smoothie!5e0!3m2!1sen!2sbd!4v1778789175762!5m2!1sen!2sbd"
               width="100%"
@@ -983,51 +973,54 @@ function ContactSection() {
 // Footer
 function Footer() {
   return (
-    <footer className="py-12 px-4 bg-gradient-to-r from-secondary to-secondary-dark text-white">
+    <footer className="py-10 sm:py-12 px-4 bg-gradient-to-r from-secondary to-secondary-dark text-white">
       <div className="max-w-5xl mx-auto text-center">
-        <div className="flex justify-center gap-4 mb-6">
+        <div className="flex justify-center gap-3 sm:gap-4 mb-4 sm:mb-6">
           <motion.a
             href="https://facebook.com"
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ scale: 1.1, y: -5 }}
-            className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
+            whileTap={{ scale: 0.9 }}
+            className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
           >
-            <Facebook className="w-5 h-5" />
+            <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
           </motion.a>
           <motion.a
             href="https://instagram.com"
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ scale: 1.1, y: -5 }}
-            className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
+            whileTap={{ scale: 0.9 }}
+            className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
           >
-            <Instagram className="w-5 h-5" />
+            <Instagram className="w-4 h-4 sm:w-5 sm:h-5" />
           </motion.a>
           <motion.a
             href="https://twitter.com"
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ scale: 1.1, y: -5 }}
-            className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
+            whileTap={{ scale: 0.9 }}
+            className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
           >
-            <Twitter className="w-5 h-5" />
+            <Twitter className="w-4 h-4 sm:w-5 sm:h-5" />
           </motion.a>
         </div>
 
-        <h3 className="font-heading text-2xl font-bold mb-2">
+        <h3 className="font-heading text-xl sm:text-2xl font-bold mb-2">
           🍹 Juicy n Smoothie
         </h3>
-        <p className="text-white/80 mb-4">Fresh Taste, Smooth Experience</p>
+        <p className="text-white/80 text-sm sm:text-base mb-3 sm:mb-4">Fresh Taste, Smooth Experience</p>
 
-        <div className="border-t border-white/20 pt-6 mt-6">
-          <p className="text-white/60 text-sm mb-2">
+        <div className="border-t border-white/20 pt-4 sm:pt-6 mt-4 sm:mt-6">
+          <p className="text-white/60 text-xs sm:text-sm mb-2">
             Designed with ❤️ for Juicy n Smoothie
           </p>
-          <p className="text-white/40 text-xs">
+          <p className="text-white/40 text-[10px] sm:text-xs">
             A product of <span className="text-accent">SabrWare</span>
           </p>
-          <p className="text-white/30 text-xs mt-3">
+          <p className="text-white/30 text-[10px] sm:text-xs mt-2 sm:mt-3">
             © 2024 Juicy n Smoothie. All rights reserved.
           </p>
         </div>
@@ -1036,27 +1029,27 @@ function Footer() {
   );
 }
 
-// Mobile Bottom Nav
-function MobileBottomNav() {
+// Mobile Bottom Nav with active state tracking
+function MobileBottomNav({ activeSection }) {
   const navItems = [
-    { href: "#hero", icon: "🏠", label: "Home" },
-    { href: "#menu", icon: "🍽️", label: "Menu" },
-    { href: "#offer", icon: "🔥", label: "Offers" },
-    { href: "#contact", icon: "📞", label: "Contact" },
+    { id: "hero", icon: "🏠", label: "Home" },
+    { id: "menu", icon: "🍽️", label: "Menu" },
+    { id: "offer", icon: "🔥", label: "Offers" },
+    { id: "contact", icon: "📞", label: "Contact" },
   ];
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 safe-bottom">
       <div className="glass-nav border-t border-gray-200/20 dark:border-gray-700/20">
-        <div className="flex justify-around py-2">
+        <div className="flex justify-around py-1 safe-bottom">
           {navItems.map((item) => (
             <a
               key={item.label}
-              href={item.href}
-              className="mobile-nav-item flex flex-col items-center py-2 px-4 text-gray-600 dark:text-gray-400 cursor-pointer"
+              href={`#${item.id}`}
+              className={`mobile-nav-item flex flex-col items-center py-2 px-3 sm:px-4 cursor-pointer ${activeSection === item.id ? "active" : "text-gray-600 dark:text-gray-400"}`}
             >
-              <span className="text-xl">{item.icon}</span>
-              <span className="text-xs mt-1">{item.label}</span>
+              <span className="text-lg sm:text-xl">{item.icon}</span>
+              <span className="text-[10px] sm:text-xs mt-0.5">{item.label}</span>
             </a>
           ))}
         </div>
@@ -1069,6 +1062,7 @@ function MobileBottomNav() {
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [activeCategory, setActiveCategory] = useState("all");
+  const [activeSection, setActiveSection] = useState("hero");
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -1102,6 +1096,23 @@ function App() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
+  useEffect(() => {
+    // Track active section for mobile bottom nav
+    const sections = document.querySelectorAll("section[id]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.3, rootMargin: "-80px 0px 0px 0px" },
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#FFFEF9] dark:bg-[#0D1117] transition-colors duration-300">
       <ParticleBackground />
@@ -1116,12 +1127,10 @@ function App() {
 
       <main>
         <HeroSection />
-        <div className="hidden md:block">
-          <CategoryTabs
-            activeCategory={activeCategory}
-            setActiveCategory={setActiveCategory}
-          />
-        </div>
+        <CategoryTabs
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+        />
         <MenuSection activeCategory={activeCategory} />
         <SpecialOffer />
         <AboutSection />
@@ -1129,9 +1138,9 @@ function App() {
       </main>
 
       <Footer />
-      <MobileBottomNav />
+      <MobileBottomNav activeSection={activeSection} />
 
-      <div className="h-20 lg:hidden" />
+      <div className="h-16 sm:h-20 lg:hidden" />
     </div>
   );
 }
