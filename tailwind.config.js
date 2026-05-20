@@ -8,12 +8,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#FF6B35',
-        'primary-dark': '#E55A2B',
-        secondary: '#004E64',
-        accent: '#F7C548',
-        'bg-light': '#FFFEF9',
-        'bg-dark': '#0D1117',
+        primary: '#74a892',
+        'primary-dark': '#5c8a75',
+        secondary: '#2d4a3e',
+        accent: '#e8c88a',
+        'bg-light': '#FAFBF7',
+        'bg-dark': '#1a2e25',
       },
       fontFamily: {
         heading: ['Playfair Display', 'serif'],
